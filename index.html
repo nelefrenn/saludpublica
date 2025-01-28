@@ -6,112 +6,37 @@
   <title>Material seleccionado en relación con Salud Pública</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
   <style>
-    body {
-      background-color: #f8f9fa;
-      color: #212529;
-    }
     table {
-      width: 100%; /* La tabla ocupa todo el ancho disponible */
-      border-collapse: collapse; /* Elimina espacios entre bordes */
-      margin-top: 20px; /* Espaciado con el resto del contenido */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
+      width: 100%;
+      border-collapse: collapse;
     }
     thead {
-      background-color: #4caf50; /* Verde suave */
-      color: white; /* Letras blancas */
+      background-color: #4caf50;
+      color: white;
     }
-    th {
-      text-align: center; /* Centra los encabezados */
-      padding: 15px; /* Espaciado dentro de las celdas */
-      font-weight: bold; /* Letras más gruesas */
-    }
-    td {
-      padding: 15px; /* Espaciado dentro de las celdas */
-      text-align: left; /* Alinea los datos a la izquierda */
-      border-bottom: 1px solid #dee2e6; /* Línea gris clara entre filas */
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
     }
     tbody tr:nth-child(even) {
-      background-color: #f1f3f5; /* Gris claro para filas pares */
-    }
-    tbody tr:nth-child(odd) {
-      background-color: #ffffff; /* Blanco para filas impares */
+      background-color: #f9f9f9;
     }
     tbody tr:hover {
-      background-color: #e9ecef; /* Gris más oscuro al pasar el ratón */
-    }
-    .search-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-    .filter-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    h1 {
-      color: #495057; /* Gris oscuro */
-    }
-    p {
-      color: #6c757d;
-    }
-    button {
-      background-color: #4caf50; /* Verde suave */
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #388e3c; /* Verde más oscuro al pasar el ratón */
-    }
-    .link-icon {
-      font-size: 1.2rem;
-      color: #007bff;
-      text-decoration: none;
-    }
-    .link-icon:hover {
-      color: #0056b3;
-    }
-    /* Diseño responsivo */
-    .table-container {
-      overflow-x: auto; /* Habilita scroll horizontal en dispositivos pequeños */
-      margin-top: 20px;
+      background-color: #f1f1f1;
     }
   </style>
 </head>
 <body>
-  <nav class="container-fluid">
-    <ul>
-      <li><strong>Salud Pública</strong></li>
-    </ul>
-  </nav>
-
   <main class="container">
-    <header>
-      <h1>Material seleccionado en relación con Salud Pública</h1>
-      <p>Consulta rápida de documentos relacionados con la salud pública mediante búsqueda y filtros avanzados.</p>
-    </header>
-
-    <div class="search-bar">
-      <div class="filter-container">
-        <input type="number" id="filter-year" placeholder="Buscar por año (e.g., 2025)" aria-label="Buscar por año" min="1900" max="2100" />
-        <button onclick="searchByYear()">Buscar por año</button>
-      </div>
-      <div class="filter-container">
-        <input type="text" id="filter-topic" placeholder="Buscar por tema en resumen" aria-label="Buscar por tema" />
-        <button onclick="searchByTopic()">Buscar por tema</button>
-      </div>
-    </div>
+    <h1>Material seleccionado en relación con Salud Pública</h1>
+    <p>Consulta rápida de documentos relacionados con la salud pública.</p>
 
     <div class="table-container">
       <table id="documents-table">
         <thead>
           <tr>
-            <th>Fecha de Publicación</th>
+            <th>Fecha de publicación</th>
             <th>Título</th>
             <th>Autor</th>
             <th>Resumen</th>
@@ -119,20 +44,15 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Los datos se cargarán dinámicamente aquí -->
+          <!-- Los datos se cargarán aquí dinámicamente -->
         </tbody>
       </table>
     </div>
   </main>
 
-  <footer class="container">
-    <small>&copy; 2025 Salud Pública</small>
-  </footer>
-
   <script>
-    const CSV_FILE = 'data.CSV'; // Archivo CSV local en la misma carpeta
+    const CSV_FILE = 'data.csv'; // Asegúrate de que este archivo esté en la misma carpeta que index.html
 
-    // Función para cargar el archivo CSV
     async function loadCSV() {
       try {
         const response = await fetch(CSV_FILE);
@@ -144,44 +64,21 @@
       }
     }
 
-    // Mostrar todos los datos en la tabla
-    async function displayAllData() {
+    async function displayData() {
       const rows = await loadCSV();
       const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = '';
+      tableBody.innerHTML = ''; // Limpia la tabla
 
       rows.slice(1).forEach(row => {
         const [fecha, titulo, autor, resumen, enlace] = row;
-        const newRow = `
-          <tr>
-            <td>${fecha || ''}</td>
-            <td>${titulo || ''}</td>
-            <td>${autor || ''}</td>
-            <td>${resumen || ''}</td>
-            <td><a href="${enlace || '#'}" class="link-icon" target="_blank" title="Abrir documento">📄</a></td>
-          </tr>
-        `;
-        tableBody.innerHTML += newRow;
-      });
-    }
-
-    // Buscar por año
-    async function searchByYear() {
-      const rows = await loadCSV();
-      const filterYear = document.getElementById('filter-year').value.trim();
-      const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = '';
-
-      rows.slice(1).forEach(row => {
-        const [fecha, titulo, autor, resumen, enlace] = row;
-        if (fecha && fecha.includes(filterYear)) {
+        if (fecha && titulo && autor && resumen && enlace) {
           const newRow = `
             <tr>
-              <td>${fecha || ''}</td>
-              <td>${titulo || ''}</td>
-              <td>${autor || ''}</td>
-              <td>${resumen || ''}</td>
-              <td><a href="${enlace || '#'}" class="link-icon" target="_blank" title="Abrir documento">📄</a></td>
+              <td>${fecha}</td>
+              <td>${titulo}</td>
+              <td>${autor}</td>
+              <td>${resumen}</td>
+              <td><a href="${enlace}" target="_blank">Abrir</a></td>
             </tr>
           `;
           tableBody.innerHTML += newRow;
@@ -189,15 +86,8 @@
       });
     }
 
-    // Buscar por tema
-    async function searchByTopic() {
-      const rows = await loadCSV();
-      const filterTopic = document.getElementById('filter-topic').value.toLowerCase().trim();
-      const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = '';
-
-      rows.slice(1).forEach(row => {
-        const [fecha, titulo, autor, resumen, enlace] = row;
-        if (
-          (titulo && titulo.t
-
+    // Cargar los datos al iniciar la página
+    window.onload = displayData;
+  </script>
+</body>
+</html>
