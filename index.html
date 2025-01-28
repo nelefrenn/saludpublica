@@ -11,12 +11,24 @@
       color: #212529;
     }
     table {
-      border-collapse: collapse;
-      width: 100%;
+      width: 100%; /* La tabla ocupa todo el ancho disponible */
+      border-collapse: collapse; /* Elimina espacios entre bordes */
+      margin-top: 20px; /* Espaciado con el resto del contenido */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
     }
     thead {
       background-color: #4caf50; /* Verde suave */
       color: white; /* Letras blancas */
+    }
+    th {
+      text-align: center; /* Centra los encabezados */
+      padding: 15px; /* Espaciado dentro de las celdas */
+      font-weight: bold; /* Letras más gruesas */
+    }
+    td {
+      padding: 15px; /* Espaciado dentro de las celdas */
+      text-align: left; /* Alinea los datos a la izquierda */
+      border-bottom: 1px solid #dee2e6; /* Línea gris clara entre filas */
     }
     tbody tr:nth-child(even) {
       background-color: #f1f3f5; /* Gris claro para filas pares */
@@ -26,11 +38,6 @@
     }
     tbody tr:hover {
       background-color: #e9ecef; /* Gris más oscuro al pasar el ratón */
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border: 1px solid #dee2e6;
     }
     .search-bar {
       display: flex;
@@ -44,9 +51,6 @@
       gap: 10px;
       margin-bottom: 20px;
       flex-wrap: wrap;
-    }
-    .table-container {
-      overflow-x: auto;
     }
     h1 {
       color: #495057; /* Gris oscuro */
@@ -71,6 +75,11 @@
     }
     .link-icon:hover {
       color: #0056b3;
+    }
+    /* Diseño responsivo */
+    .table-container {
+      overflow-x: auto; /* Habilita scroll horizontal en dispositivos pequeños */
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -190,25 +199,5 @@
       rows.slice(1).forEach(row => {
         const [fecha, titulo, autor, resumen, enlace] = row;
         if (
-          (titulo && titulo.toLowerCase().includes(filterTopic)) ||
-          (resumen && resumen.toLowerCase().includes(filterTopic))
-        ) {
-          const newRow = `
-            <tr>
-              <td>${fecha || ''}</td>
-              <td>${titulo || ''}</td>
-              <td>${autor || ''}</td>
-              <td>${resumen || ''}</td>
-              <td><a href="${enlace || '#'}" class="link-icon" target="_blank" title="Abrir documento">📄</a></td>
-            </tr>
-          `;
-          tableBody.innerHTML += newRow;
-        }
-      });
-    }
+          (titulo && titulo.t
 
-    // Cargar todos los datos al cargar la página
-    window.onload = displayAllData;
-  </script>
-</body>
-</html>
