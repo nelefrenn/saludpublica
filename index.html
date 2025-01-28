@@ -14,6 +14,7 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     thead {
       background-color: #4caf50;
@@ -34,6 +35,7 @@
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     button {
       background-color: #4caf50;
@@ -44,6 +46,14 @@
     }
     button:hover {
       background-color: #388e3c;
+    }
+    .link-icon {
+      font-size: 1.2rem;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .link-icon:hover {
+      color: #0056b3;
     }
   </style>
 </head>
@@ -79,7 +89,7 @@
   </main>
 
   <script>
-    const CSV_FILE = 'data.csv'; // Archivo CSV local
+    const CSV_FILE = 'data.csv'; // Asegúrate de que este archivo esté en la misma carpeta que index.html
 
     // Función para cargar el archivo CSV
     async function loadCSV() {
@@ -97,7 +107,7 @@
     async function displayAllData() {
       const rows = await loadCSV();
       const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = ''; // Limpiar la tabla antes de mostrar datos
+      tableBody.innerHTML = ''; // Limpia la tabla antes de mostrar datos
 
       rows.slice(1).forEach(row => {
         const [fecha, titulo, autor, resumen, enlace] = row;
@@ -108,7 +118,7 @@
               <td>${titulo}</td>
               <td>${autor}</td>
               <td>${resumen}</td>
-              <td><a href="${enlace}" target="_blank">Abrir</a></td>
+              <td><a href="${enlace}" target="_blank" class="link-icon" title="Abrir documento">📄</a></td>
             </tr>
           `;
           tableBody.innerHTML += newRow;
@@ -121,7 +131,7 @@
       const rows = await loadCSV();
       const filterYear = document.getElementById('filter-year').value.trim();
       const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = ''; // Limpiar la tabla antes de mostrar datos
+      tableBody.innerHTML = ''; // Limpia la tabla antes de mostrar datos
 
       rows.slice(1).forEach(row => {
         const [fecha, titulo, autor, resumen, enlace] = row;
@@ -132,7 +142,7 @@
               <td>${titulo}</td>
               <td>${autor}</td>
               <td>${resumen}</td>
-              <td><a href="${enlace}" target="_blank">Abrir</a></td>
+              <td><a href="${enlace}" target="_blank" class="link-icon" title="Abrir documento">📄</a></td>
             </tr>
           `;
           tableBody.innerHTML += newRow;
@@ -145,7 +155,7 @@
       const rows = await loadCSV();
       const filterTopic = document.getElementById('filter-topic').value.toLowerCase().trim();
       const tableBody = document.querySelector('#documents-table tbody');
-      tableBody.innerHTML = ''; // Limpiar la tabla antes de mostrar datos
+      tableBody.innerHTML = ''; // Limpia la tabla antes de mostrar datos
 
       rows.slice(1).forEach(row => {
         const [fecha, titulo, autor, resumen, enlace] = row;
@@ -159,7 +169,7 @@
               <td>${titulo}</td>
               <td>${autor}</td>
               <td>${resumen}</td>
-              <td><a href="${enlace}" target="_blank">Abrir</a></td>
+              <td><a href="${enlace}" target="_blank" class="link-icon" title="Abrir documento">📄</a></td>
             </tr>
           `;
           tableBody.innerHTML += newRow;
