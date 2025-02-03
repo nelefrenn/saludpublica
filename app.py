@@ -13,22 +13,33 @@ Entrez.email = "tuemail@ejemplo.com"
 def buscar_articulos():
     categoria = request.args.get('categoria')
     
-    # Buscar en PubMed
-    handle = Entrez.esearch(db="pubmed", term=categoria, retmax=10, sort="pub+date")
+    if not categoria:
+        return jsonify({"error": "Debe proporcionar una categoría de búsqueda"}), 400
+
+    translator = Translator()
+    
+    try:
+        # Traducir el término de búsqueda al inglés
+        categoria_en = translator.translate(categoria, src="es", dest="en").text
+    except Exception as e:
+        return jsonify({"error": f"Error en la traducción: {str(e)}"}), 500
+    
+    # Buscar en PubMed usando el término traducido
+    handle = Entrez.esearch(db="pubmed", term=categoria_en, retmax=10, sort="pub+date")
     record = Entrez.read(handle)
     handle.close()
     
-    article_ids = record["IdList"]
-    handle = Entrez.efetch(db="pubmed", id=",".join(article_ids), rettype="medline", retmode="text")
-    data = handle.read()
-    handle.close()
+    article_ids = record.get("IdList", [])
+    
+    if not article_ids:
+        return jsonify({"message": "No se encontraron artículos en PubMed"}), 404
 
     resultados = []
-    translator = Translator()
     
     for article_id in article_ids:
         summary = Entrez.efetch(db="pubmed", id=article_id, rettype="abstract", retmode="xml")
         summary_record = Entrez.read(summary)
+        summary.close()
 
         if "PubmedArticle" in summary_record:
             article = summary_record["PubmedArticle"][0]
@@ -37,7 +48,11 @@ def buscar_articulos():
             pub_date = article["MedlineCitation"]["Article"]["Journal"]["JournalIssue"]["PubDate"].get("Year", "No Fecha")
             link = f"https://pubmed.ncbi.nlm.nih.gov/{article_id}/"
 
-            resumen_traducido = translator.translate(abstract, src="auto", dest="es").text
+            # Traducir el resumen al español
+            try:
+                resumen_traducido = translator.translate(abstract, src="en", dest="es").text
+            except Exception:
+                resumen_traducido = "Traducción no disponible"
 
             resultados.append({
                 "fecha": pub_date,
