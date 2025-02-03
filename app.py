@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Habilitar CORS correctamente
 CORS(app)  # Esto permitirá que cualquier dominio acceda a la API
 
-Entrez.email = "tuemail@gmail.com"  # Usa un correo válido
+Entrez.email = "nelefren@gmail.com"  # Usa un correo válido
 
 @app.route('/buscar', methods=['GET'])
 def buscar_articulos():
