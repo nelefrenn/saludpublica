@@ -7,8 +7,8 @@ import os
 
 app = Flask(__name__)
 
-# Habilitar CORS para permitir solicitudes desde GitHub Pages
-CORS(app, resources={r"/*": {"origins": "*"}})
+# Habilitar CORS correctamente
+CORS(app)  # Esto permitirá que cualquier dominio acceda a la API
 
 Entrez.email = "tuemail@gmail.com"  # Usa un correo válido
 
@@ -42,17 +42,29 @@ def buscar_articulos():
                 pub_date = article["MedlineCitation"]["Article"]["Journal"]["JournalIssue"]["PubDate"].get("Year", "Fecha desconocida")
                 link = f"https://pubmed.ncbi.nlm.nih.gov/{article_id}/"
 
+                # Agregar manejo de errores en la traducción
+                try:
+                    titulo_traducido = translator.translate(title, src="auto", dest="es").text
+                except Exception:
+                    titulo_traducido = title  # En caso de error, usa el original
+
+                try:
+                    resumen_traducido = translator.translate(abstract, src="auto", dest="es").text
+                except Exception:
+                    resumen_traducido = abstract  # En caso de error, usa el original
+
                 resultados.append({
                     "fecha": pub_date,
-                    "titulo": translator.translate(title, dest="es").text,
-                    "resumen": translator.translate(abstract, dest="es").text,
+                    "titulo": titulo_traducido,
+                    "resumen": resumen_traducido,
                     "enlace": link
                 })
 
         return jsonify(resultados)
 
     except Exception as e:
-        return jsonify({"error": f"Error interno: {str(e)}"}), 500
+        return jsonify({"error": f"Error interno en el servidor: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
