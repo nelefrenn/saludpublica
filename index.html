@@ -6,14 +6,18 @@
     <title>Gestor de Investigación en Salud Pública</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <script>
+        let datosArticulos = []; // Almacena todos los artículos
+        let paginaActual = 1;
+        const articulosPorPagina = 5; // Cantidad de artículos por página
+
         async function buscarArticulos() {
             let categoria = document.getElementById("categoria").value;
-            const backendUrl = "https://saludpublica.onrender.com"; // Ajusta tu URL
+            const backendUrl = "https://saludpublica.onrender.com";
 
             let loader = document.getElementById("loader");
             let tabla = document.getElementById("tablaResultados");
+            let paginacion = document.getElementById("paginacion");
 
-            // Mostrar el loader antes de iniciar la búsqueda
             loader.style.display = "block";
             tabla.innerHTML = `
                 <tr>
@@ -23,13 +27,13 @@
                     <th>Enlace</th>
                 </tr>`;
 
-            // Usamos un pequeño retraso para asegurar que el loader se muestre antes de ejecutar fetch()
+            paginacion.style.display = "none";
+
             setTimeout(async () => {
                 try {
                     let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
                     let data = await response.json();
 
-                    // Ocultar el loader cuando se reciban los datos
                     loader.style.display = "none";
 
                     if (data.error) {
@@ -37,37 +41,60 @@
                         return;
                     }
 
-                    // Mostrar los resultados en la tabla
-                    data.forEach(articulo => {
-                        let fila = `<tr>
-                            <td>${articulo.fecha}</td>
-                            <td>${articulo.titulo}</td>
-                            <td>${articulo.resumen}</td>
-                            <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
-                        </tr>`;
-                        tabla.innerHTML += fila;
-                    });
+                    datosArticulos = data; // Guardamos los datos
+                    paginaActual = 1;
+                    mostrarPagina(1);
+                    paginacion.style.display = "block";
 
                 } catch (error) {
                     console.error("Error en la búsqueda:", error);
-                    loader.style.display = "none"; // Ocultar el loader en caso de error
+                    loader.style.display = "none";
                     tabla.innerHTML += `<tr><td colspan="4">Error al obtener datos. Intenta de nuevo.</td></tr>`;
                 }
-            }, 100); // Agregamos un retraso de 100ms para que el DOM actualice
+            }, 100);
         }
 
-        function descargarExcel() {
-            window.location.href = "https://saludpublica.onrender.com/descargar_excel";
-        }
-
-        function limpiarBusqueda() {
-            document.getElementById("tablaResultados").innerHTML = `
+        function mostrarPagina(pagina) {
+            let tabla = document.getElementById("tablaResultados");
+            tabla.innerHTML = `
                 <tr>
                     <th>Fecha de Publicación</th>
                     <th>Título</th>
                     <th>Resumen</th>
                     <th>Enlace</th>
                 </tr>`;
+
+            let inicio = (pagina - 1) * articulosPorPagina;
+            let fin = inicio + articulosPorPagina;
+            let paginaDatos = datosArticulos.slice(inicio, fin);
+
+            paginaDatos.forEach(articulo => {
+                let fila = `<tr>
+                    <td>${articulo.fecha}</td>
+                    <td>${articulo.titulo}</td>
+                    <td>${articulo.resumen}</td>
+                    <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
+                </tr>`;
+                tabla.innerHTML += fila;
+            });
+
+            document.getElementById("paginaActual").innerText = pagina;
+        }
+
+        function cambiarPagina(direccion) {
+            let totalPaginas = Math.ceil(datosArticulos.length / articulosPorPagina);
+            if (direccion === "siguiente" && paginaActual < totalPaginas) {
+                paginaActual++;
+            } else if (direccion === "anterior" && paginaActual > 1) {
+                paginaActual--;
+            }
+            mostrarPagina(paginaActual);
+        }
+
+        function descargarExcel() {
+            let categoria = document.getElementById("categoria").value;
+            let url = `https://saludpublica.onrender.com/descargar_excel?categoria=${encodeURIComponent(categoria)}&data=${encodeURIComponent(JSON.stringify(datosArticulos))}`;
+            window.location.href = url;
         }
     </script>
 </head>
@@ -93,9 +120,8 @@
         </select>
         <button onclick="buscarArticulos()">Buscar</button>
         <button onclick="descargarExcel()">Descargar Excel</button>
-        <button onclick="limpiarBusqueda()">Borrar</button>
 
-        <!-- Loader (animación de carga) -->
+        <!-- Loader -->
         <div id="loader" style="display: none; text-align: center; padding: 20px;">
             <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="50">
             <p>Buscando artículos en PubMed...</p>
@@ -109,6 +135,12 @@
                 <th>Enlace</th>
             </tr>
         </table>
+
+        <div id="paginacion" style="display: none; text-align: center; margin-top: 20px;">
+            <button onclick="cambiarPagina('anterior')">Anterior</button>
+            <span>Página <span id="paginaActual">1</span></span>
+            <button onclick="cambiarPagina('siguiente')">Siguiente</button>
+        </div>
     </main>
 
     <footer class="container">
@@ -116,5 +148,6 @@
     </footer>
 </body>
 </html>
+
 
 
