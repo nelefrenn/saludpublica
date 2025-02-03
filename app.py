@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Habilitar CORS para permitir solicitudes desde GitHub Pages
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-Entrez.email = "nelefren@gmail.com"  # Usa un correo válido
+Entrez.email = "tuemail@gmail.com"  # Usa un correo válido
 
 @app.route('/buscar', methods=['GET'])
 def buscar_articulos():
