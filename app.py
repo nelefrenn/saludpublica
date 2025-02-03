@@ -3,6 +3,11 @@ from Bio import Entrez
 from googletrans import Translator
 import pandas as pd
 import os
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)  # Permite solicitudes desde cualquier origen
+
 
 app = Flask(__name__)
 
