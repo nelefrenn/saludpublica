@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-Entrez.email = "tuemail@gmail.com"
+Entrez.email = "nelefren@gmail.com"
 
 @app.route('/buscar', methods=['GET'])
 def buscar_articulos():
