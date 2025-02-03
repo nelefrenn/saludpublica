@@ -1,15 +1,12 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS  # Importar CORS
 from Bio import Entrez
 from googletrans import Translator
 import pandas as pd
 import os
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Permite solicitudes desde cualquier origen
-
-
-app = Flask(__name__)
+CORS(app)  # Habilita CORS para todas las solicitudes
 
 # Configurar Entrez con un correo electrónico
 Entrez.email = "tuemail@ejemplo.com"
