@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestor de Investigación en Salud Pública</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <script>
+        const backendUrl = "https://tu-servidor-render.onrender.com"; // Cambia esta URL al desplegar
+
+        async function buscarArticulos() {
+            let categoria = document.getElementById("categoria").value;
+            let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
+            let data = await response.json();
+
+            let tabla = document.getElementById("tablaResultados");
+            tabla.innerHTML = `
+                <tr>
+                    <th>Fecha de Publicación</th>
+                    <th>Título</th>
+                    <th>Resumen</th>
+                    <th>Enlace</th>
+                </tr>`;
+
+            data.forEach(articulo => {
+                let fila = `<tr>
+                    <td>${articulo.fecha}</td>
+                    <td>${articulo.titulo}</td>
+                    <td>${articulo.resumen}</td>
+                    <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
+                </tr>`;
+                tabla.innerHTML += fila;
+            });
+        }
+
+        function descargarExcel() {
+            window.location.href = `${backendUrl}/descargar_excel`;
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById("tablaResultados").innerHTML = `
+                <tr>
+                    <th>Fecha de Publicación</th>
+                    <th>Título</th>
+                    <th>Resumen</th>
+                    <th>Enlace</th>
+                </tr>`;
+        }
+    </script>
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul>
+            <li><strong>Gestor de Investigación en Salud Pública</strong></li>
+        </ul>
+        <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Acerca</a></li>
+            <li><a href="#" role="button">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h2>Buscar Artículos en PubMed</h2>
+        <label for="categoria">Seleccione una categoría:</label>
+        <select id="categoria">
+            <option value="Global Public Health">Salud Pública Global</option>
+            <option value="Public Health Law">Ley de Salud Pública</option>
+            <option value="Health Systems">Sistemas de Salud</option>
+        </select>
+        <button onclick="buscarArticulos()">Buscar</button>
+        <button onclick="descargarExcel()">Descargar Excel</button>
+        <button onclick="limpiarBusqueda()">Borrar</button>
+
+        <table id="tablaResultados" border="1">
+            <tr>
+                <th>Fecha de Publicación</th>
+                <th>Título</th>
+                <th>Resumen</th>
+                <th>Enlace</th>
+            </tr>
+        </table>
+    </main>
+
+    <footer class="container">
+        <small>© 2025 Gestor de Investigación en Salud Pública</small>
+    </footer>
+</body>
+</html>
