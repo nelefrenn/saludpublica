@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from Bio import Entrez
 from googletrans import Translator
 import pandas as pd
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -18,14 +19,20 @@ def buscar_articulos():
         return jsonify({"error": "Debes proporcionar una categoría"}), 400
 
     try:
-        # Reducimos la cantidad de artículos para evitar problemas de memoria
-        handle = Entrez.esearch(db="pubmed", term=categoria, retmax=20, sort="pub+date")
+        # Obtener la fecha actual y establecer el rango desde enero de 2024
+        fecha_actual = datetime.today().strftime("%Y/%m/%d")
+        fecha_inicio = "2024/01/01"
+
+        # Agregar filtro de fecha a la búsqueda
+        query = f'({categoria}) AND ("{fecha_inicio}"[Date - Publication] : "{fecha_actual}"[Date - Publication])'
+
+        handle = Entrez.esearch(db="pubmed", term=query, retmax=20, sort="pub+date")
         record = Entrez.read(handle)
         handle.close()
 
         article_ids = record.get("IdList", [])
         if not article_ids:
-            return jsonify({"error": "No se encontraron artículos"}), 404
+            return jsonify({"error": "No se encontraron artículos desde enero de 2024"}), 404
 
         resultados = []
         translator = Translator()
@@ -42,7 +49,7 @@ def buscar_articulos():
                     pub_date = article["MedlineCitation"]["Article"]["Journal"]["JournalIssue"]["PubDate"].get("Year", "Fecha desconocida")
                     link = f"https://pubmed.ncbi.nlm.nih.gov/{article_id}/"
 
-                    # Traducir solo si hay texto
+                    # Traducir solo si hay contenido
                     titulo_traducido = translator.translate(title, src="auto", dest="es").text if title else title
                     resumen_traducido = translator.translate(abstract, src="auto", dest="es").text if abstract else abstract
 
@@ -62,5 +69,4 @@ def buscar_articulos():
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-
 
