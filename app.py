@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # Habilita CORS para todas las solicitudes
 
 # Configurar Entrez con un correo electrónico
-Entrez.email = "tuemail@ejemplo.com"
+Entrez.email = "nelefren@gmail.com"
 
 @app.route('/buscar', methods=['GET'])
 def buscar_articulos():
