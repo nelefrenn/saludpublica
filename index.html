@@ -41,7 +41,7 @@
                         return;
                     }
 
-                    datosArticulos = data; // Guardamos los datos
+                    datosArticulos = data;
                     paginaActual = 1;
                     mostrarPagina(1);
                     paginacion.style.display = "block";
@@ -91,10 +91,48 @@
             mostrarPagina(paginaActual);
         }
 
-        function descargarExcel() {
-            let categoria = document.getElementById("categoria").value;
-            let url = `https://saludpublica.onrender.com/descargar_excel?categoria=${encodeURIComponent(categoria)}&data=${encodeURIComponent(JSON.stringify(datosArticulos))}`;
-            window.location.href = url;
+        function limpiarBusqueda() {
+            document.getElementById("tablaResultados").innerHTML = `
+                <tr>
+                    <th>Fecha de Publicación</th>
+                    <th>Título</th>
+                    <th>Resumen</th>
+                    <th>Enlace</th>
+                </tr>`;
+            document.getElementById("paginacion").style.display = "none";
+            datosArticulos = [];
+        }
+
+        async function descargarExcel() {
+            if (datosArticulos.length === 0) {
+                alert("No hay datos para descargar.");
+                return;
+            }
+
+            const backendUrl = "https://saludpublica.onrender.com/descargar_excel";
+
+            try {
+                let response = await fetch(backendUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ datos: datosArticulos })
+                });
+
+                if (!response.ok) throw new Error("Error en la descarga del Excel");
+
+                let blob = await response.blob();
+                let url = window.URL.createObjectURL(blob);
+                let a = document.createElement("a");
+                a.href = url;
+                a.download = "resultados_pubmed.xlsx";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error("Error al descargar el Excel:", error);
+                alert("Hubo un problema al descargar el archivo.");
+            }
         }
     </script>
 </head>
@@ -102,11 +140,6 @@
     <nav class="container-fluid">
         <ul>
             <li><strong>Gestor de Investigación en Salud Pública</strong></li>
-        </ul>
-        <ul>
-            <li><a href="#">Inicio</a></li>
-            <li><a href="#">Acerca</a></li>
-            <li><a href="#" role="button">Contacto</a></li>
         </ul>
     </nav>
 
@@ -120,8 +153,8 @@
         </select>
         <button onclick="buscarArticulos()">Buscar</button>
         <button onclick="descargarExcel()">Descargar Excel</button>
+        <button onclick="limpiarBusqueda()">Borrar Búsqueda</button>
 
-        <!-- Loader -->
         <div id="loader" style="display: none; text-align: center; padding: 20px;">
             <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="50">
             <p>Buscando artículos en PubMed...</p>
@@ -142,12 +175,9 @@
             <button onclick="cambiarPagina('siguiente')">Siguiente</button>
         </div>
     </main>
-
-    <footer class="container">
-        <small>© 2025 Gestor de Investigación en Salud Pública</small>
-    </footer>
 </body>
 </html>
+
 
 
 
