@@ -1,14 +1,16 @@
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
+from flask_cors import CORS  # Importar CORS
 from Bio import Entrez
 from googletrans import Translator
 import pandas as pd
 import os
 
 app = Flask(__name__)
+
+# Habilitar CORS para permitir solicitudes desde GitHub Pages
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-Entrez.email = "nelefren@gmail.com"
+Entrez.email = "nelefren@gmail.com"  # Usa un correo válido
 
 @app.route('/buscar', methods=['GET'])
 def buscar_articulos():
@@ -54,5 +56,3 @@ def buscar_articulos():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-
-
