@@ -8,12 +8,12 @@
     <script>
         async function buscarArticulos() {
             let categoria = document.getElementById("categoria").value;
-            const backendUrl = "https://saludpublica.onrender.com"; // Asegúrate de poner tu URL correcta
+            const backendUrl = "https://saludpublica.onrender.com"; // Ajusta tu URL
 
-            let loader = document.getElementById("loader"); // Obtener el loader
+            let loader = document.getElementById("loader");
             let tabla = document.getElementById("tablaResultados");
 
-            // Mostrar el loader y limpiar la tabla antes de hacer la petición
+            // Mostrar el loader antes de iniciar la búsqueda
             loader.style.display = "block";
             tabla.innerHTML = `
                 <tr>
@@ -23,34 +23,37 @@
                     <th>Enlace</th>
                 </tr>`;
 
-            try {
-                let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
-                let data = await response.json();
+            // Usamos un pequeño retraso para asegurar que el loader se muestre antes de ejecutar fetch()
+            setTimeout(async () => {
+                try {
+                    let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
+                    let data = await response.json();
 
-                // Ocultar el loader cuando se reciban los datos
-                loader.style.display = "none";
+                    // Ocultar el loader cuando se reciban los datos
+                    loader.style.display = "none";
 
-                if (data.error) {
-                    tabla.innerHTML += `<tr><td colspan="4">${data.error}</td></tr>`;
-                    return;
+                    if (data.error) {
+                        tabla.innerHTML += `<tr><td colspan="4">${data.error}</td></tr>`;
+                        return;
+                    }
+
+                    // Mostrar los resultados en la tabla
+                    data.forEach(articulo => {
+                        let fila = `<tr>
+                            <td>${articulo.fecha}</td>
+                            <td>${articulo.titulo}</td>
+                            <td>${articulo.resumen}</td>
+                            <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
+                        </tr>`;
+                        tabla.innerHTML += fila;
+                    });
+
+                } catch (error) {
+                    console.error("Error en la búsqueda:", error);
+                    loader.style.display = "none"; // Ocultar el loader en caso de error
+                    tabla.innerHTML += `<tr><td colspan="4">Error al obtener datos. Intenta de nuevo.</td></tr>`;
                 }
-
-                // Mostrar los resultados en la tabla
-                data.forEach(articulo => {
-                    let fila = `<tr>
-                        <td>${articulo.fecha}</td>
-                        <td>${articulo.titulo}</td>
-                        <td>${articulo.resumen}</td>
-                        <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
-                    </tr>`;
-                    tabla.innerHTML += fila;
-                });
-
-            } catch (error) {
-                console.error("Error en la búsqueda:", error);
-                loader.style.display = "none"; // Ocultar el loader en caso de error
-                tabla.innerHTML += `<tr><td colspan="4">Error al obtener datos. Intenta de nuevo.</td></tr>`;
-            }
+            }, 100); // Agregamos un retraso de 100ms para que el DOM actualice
         }
 
         function descargarExcel() {
@@ -92,7 +95,7 @@
         <button onclick="descargarExcel()">Descargar Excel</button>
         <button onclick="limpiarBusqueda()">Borrar</button>
 
-        <!-- Mensaje de carga (inicialmente oculto) -->
+        <!-- Loader (animación de carga) -->
         <div id="loader" style="display: none; text-align: center; padding: 20px;">
             <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="50">
             <p>Buscando artículos en PubMed...</p>
@@ -113,4 +116,5 @@
     </footer>
 </body>
 </html>
+
 
