@@ -6,14 +6,15 @@
     <title>Gestor de Investigación en Salud Pública</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <script>
-       const backendUrl = "https://saludpublica.onrender.com"; // Reemplázalo con la URL real de Render
-
         async function buscarArticulos() {
             let categoria = document.getElementById("categoria").value;
-            let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
-            let data = await response.json();
+            const backendUrl = "https://saludpublica.onrender.com"; // Asegúrate de poner tu URL correcta
 
+            let loader = document.getElementById("loader"); // Obtener el loader
             let tabla = document.getElementById("tablaResultados");
+
+            // Mostrar el loader y limpiar la tabla antes de hacer la petición
+            loader.style.display = "block";
             tabla.innerHTML = `
                 <tr>
                     <th>Fecha de Publicación</th>
@@ -22,19 +23,38 @@
                     <th>Enlace</th>
                 </tr>`;
 
-            data.forEach(articulo => {
-                let fila = `<tr>
-                    <td>${articulo.fecha}</td>
-                    <td>${articulo.titulo}</td>
-                    <td>${articulo.resumen}</td>
-                    <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
-                </tr>`;
-                tabla.innerHTML += fila;
-            });
+            try {
+                let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
+                let data = await response.json();
+
+                // Ocultar el loader cuando se reciban los datos
+                loader.style.display = "none";
+
+                if (data.error) {
+                    tabla.innerHTML += `<tr><td colspan="4">${data.error}</td></tr>`;
+                    return;
+                }
+
+                // Mostrar los resultados en la tabla
+                data.forEach(articulo => {
+                    let fila = `<tr>
+                        <td>${articulo.fecha}</td>
+                        <td>${articulo.titulo}</td>
+                        <td>${articulo.resumen}</td>
+                        <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
+                    </tr>`;
+                    tabla.innerHTML += fila;
+                });
+
+            } catch (error) {
+                console.error("Error en la búsqueda:", error);
+                loader.style.display = "none"; // Ocultar el loader en caso de error
+                tabla.innerHTML += `<tr><td colspan="4">Error al obtener datos. Intenta de nuevo.</td></tr>`;
+            }
         }
 
         function descargarExcel() {
-            window.location.href = `${backendUrl}/descargar_excel`;
+            window.location.href = "https://saludpublica.onrender.com/descargar_excel";
         }
 
         function limpiarBusqueda() {
@@ -72,6 +92,12 @@
         <button onclick="descargarExcel()">Descargar Excel</button>
         <button onclick="limpiarBusqueda()">Borrar</button>
 
+        <!-- Mensaje de carga (inicialmente oculto) -->
+        <div id="loader" style="display: none; text-align: center; padding: 20px;">
+            <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="50">
+            <p>Buscando artículos en PubMed...</p>
+        </div>
+
         <table id="tablaResultados" border="1">
             <tr>
                 <th>Fecha de Publicación</th>
@@ -87,3 +113,4 @@
     </footer>
 </body>
 </html>
+
