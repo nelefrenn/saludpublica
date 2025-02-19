@@ -2,181 +2,139 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gestor de Investigación en Salud Pública</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
-    <script>
-        let datosArticulos = []; // Almacena todos los artículos
-        let paginaActual = 1;
-        const articulosPorPagina = 5; // Cantidad de artículos por página
-
-        async function buscarArticulos() {
-            let categoria = document.getElementById("categoria").value;
-            const backendUrl = "https://saludpublica.onrender.com";
-
-            let loader = document.getElementById("loader");
-            let tabla = document.getElementById("tablaResultados");
-            let paginacion = document.getElementById("paginacion");
-
-            loader.style.display = "block";
-            tabla.innerHTML = `
-                <tr>
-                    <th>Fecha de Publicación</th>
-                    <th>Título</th>
-                    <th>Resumen</th>
-                    <th>Enlace</th>
-                </tr>`;
-
-            paginacion.style.display = "none";
-
-            setTimeout(async () => {
-                try {
-                    let response = await fetch(`${backendUrl}/buscar?categoria=${encodeURIComponent(categoria)}`);
-                    let data = await response.json();
-
-                    loader.style.display = "none";
-
-                    if (data.error) {
-                        tabla.innerHTML += `<tr><td colspan="4">${data.error}</td></tr>`;
-                        return;
-                    }
-
-                    datosArticulos = data;
-                    paginaActual = 1;
-                    mostrarPagina(1);
-                    paginacion.style.display = "block";
-
-                } catch (error) {
-                    console.error("Error en la búsqueda:", error);
-                    loader.style.display = "none";
-                    tabla.innerHTML += `<tr><td colspan="4">Error al obtener datos. Intenta de nuevo.</td></tr>`;
-                }
-            }, 100);
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Virtual de la Agencia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #002D5A;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-
-        function mostrarPagina(pagina) {
-            let tabla = document.getElementById("tablaResultados");
-            tabla.innerHTML = `
-                <tr>
-                    <th>Fecha de Publicación</th>
-                    <th>Título</th>
-                    <th>Resumen</th>
-                    <th>Enlace</th>
-                </tr>`;
-
-            let inicio = (pagina - 1) * articulosPorPagina;
-            let fin = inicio + articulosPorPagina;
-            let paginaDatos = datosArticulos.slice(inicio, fin);
-
-            paginaDatos.forEach(articulo => {
-                let fila = `<tr>
-                    <td>${articulo.fecha}</td>
-                    <td>${articulo.titulo}</td>
-                    <td>${articulo.resumen}</td>
-                    <td><a href="${articulo.enlace}" target="_blank">Ver Artículo</a></td>
-                </tr>`;
-                tabla.innerHTML += fila;
-            });
-
-            document.getElementById("paginaActual").innerText = pagina;
+        .container {
+            max-width: 800px;
+            width: 90%;
+            padding: 40px;
+            background: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        function cambiarPagina(direccion) {
-            let totalPaginas = Math.ceil(datosArticulos.length / articulosPorPagina);
-            if (direccion === "siguiente" && paginaActual < totalPaginas) {
-                paginaActual++;
-            } else if (direccion === "anterior" && paginaActual > 1) {
-                paginaActual--;
-            }
-            mostrarPagina(paginaActual);
+        img {
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 20px;
         }
-
-        function limpiarBusqueda() {
-            document.getElementById("tablaResultados").innerHTML = `
-                <tr>
-                    <th>Fecha de Publicación</th>
-                    <th>Título</th>
-                    <th>Resumen</th>
-                    <th>Enlace</th>
-                </tr>`;
-            document.getElementById("paginacion").style.display = "none";
-            datosArticulos = [];
+        h1 {
+            color: #002D5A;
+            font-size: 32px;
+            text-align: center;
+            margin: 20px 0;
         }
-
-        async function descargarExcel() {
-            if (datosArticulos.length === 0) {
-                alert("No hay datos para descargar.");
-                return;
-            }
-
-            const backendUrl = "https://saludpublica.onrender.com/descargar_excel";
-
-            try {
-                let response = await fetch(backendUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ datos: datosArticulos })
-                });
-
-                if (!response.ok) throw new Error("Error en la descarga del Excel");
-
-                let blob = await response.blob();
-                let url = window.URL.createObjectURL(blob);
-                let a = document.createElement("a");
-                a.href = url;
-                a.download = "resultados_pubmed.xlsx";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-            } catch (error) {
-                console.error("Error al descargar el Excel:", error);
-                alert("Hubo un problema al descargar el archivo.");
-            }
+        h2 {
+            font-size: 22px;
+            color: #333;
+            text-align: center;
+            margin: 10px 0 20px;
         }
-    </script>
+        .notice {
+            background: #FFD700;
+            color: #002D5A;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        #chat-container {
+            margin-top: 30px;
+            border: 2px solid #FFD700;
+            padding: 20px;
+            border-radius: 10px;
+            background: #F5F5F5;
+            width: 100%;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-box {
+            width: 100%;
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            text-align: left;
+            flex-grow: 1;
+        }
+        #chat-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        #user-input {
+            width: 75%;
+            padding: 10px;
+        }
+        #send-button, #copy-button, #clear-button {
+            padding: 10px;
+            background: #002D5A;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
-    <nav class="container-fluid">
-        <ul>
-            <li><strong>Gestor de Investigación en Salud Pública</strong></li>
-        </ul>
-    </nav>
-
-    <main class="container">
-        <h2>Buscar Artículos en PubMed</h2>
-        <label for="categoria">Seleccione una categoría:</label>
-        <select id="categoria">
-            <option value="Global Public Health">Salud Pública Global</option>
-            <option value="Public Health Law">Ley de Salud Pública</option>
-            <option value="Health Systems">Sistemas de Salud</option>
-        </select>
-        <button onclick="buscarArticulos()">Buscar</button>
-        <button onclick="descargarExcel()">Descargar Excel</button>
-        <button onclick="limpiarBusqueda()">Borrar Búsqueda</button>
-
-        <div id="loader" style="display: none; text-align: center; padding: 20px;">
-            <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="50">
-            <p>Buscando artículos en PubMed...</p>
+    <div class="container">
+        <img src="logo.png" alt="Logo de la Agencia">
+        <h1>Asistente Virtual de la Agencia</h1>
+        <h2>Esta herramienta te permite encontrar información sobre documentos relacionados con la actividad de la agencia.</h2>
+        <div class="notice">
+            <p><strong>⚠ Aviso:</strong> Actualmente, el asistente solo puede proporcionar información sobre Protesta Social. Estamos trabajando para expandir su funcionalidad. ¡Gracias por tu paciencia! 😊</p>
         </div>
-
-        <table id="tablaResultados" border="1">
-            <tr>
-                <th>Fecha de Publicación</th>
-                <th>Título</th>
-                <th>Resumen</th>
-                <th>Enlace</th>
-            </tr>
-        </table>
-
-        <div id="paginacion" style="display: none; text-align: center; margin-top: 20px;">
-            <button onclick="cambiarPagina('anterior')">Anterior</button>
-            <span>Página <span id="paginaActual">1</span></span>
-            <button onclick="cambiarPagina('siguiente')">Siguiente</button>
+        <div id="chat-container">
+            <div id="chat-box"></div>
+            <div id="chat-controls">
+                <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí...">
+                <button id="send-button">Enviar</button>
+                <button id="copy-button">Copiar</button>
+                <button id="clear-button">Borrar</button>
+            </div>
         </div>
-    </main>
+    </div>
+    <script>
+        document.getElementById("send-button").addEventListener("click", async function() {
+            let userInput = document.getElementById("user-input").value;
+            if (!userInput) return;
+
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><strong>Tú:</strong> ${userInput}</p>`;
+            
+            let response = await fetch("https://agencia-o2w9.onrender.com/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            });
+            
+            let result = await response.json();
+            chatBox.innerHTML += `<p><strong>Asistente:</strong> ${result.reply}</p>`;
+            document.getElementById("user-input").value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
 </body>
 </html>
+
 
 
 
