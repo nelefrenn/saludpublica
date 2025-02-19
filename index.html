@@ -92,6 +92,33 @@
             cursor: pointer;
             margin-left: 5px;
         }
+        /* Estilos para la ventana emergente */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+            text-align: left;
+            color: #002D5A;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +126,7 @@
         <img src="logo.png" alt="Logo de la Agencia">
         <h1>Asistente Virtual de la Agencia</h1>
         <h2>Esta herramienta te permite encontrar información sobre documentos relacionados con la actividad de la agencia.</h2>
+        <button id="openModal">Consejos</button>
         <div class="notice">
             <p><strong>⚠ Aviso:</strong> Actualmente, el asistente solo puede proporcionar información sobre Protesta Social. Estamos trabajando para expandir su funcionalidad. ¡Gracias por tu paciencia! 😊</p>
         </div>
@@ -112,24 +140,44 @@
             </div>
         </div>
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Ejemplos de Preguntas</h2>
+            <p>¿Qué dice la Constitución de Colombia sobre la protesta social?</p>
+            <p>¿Cuáles son las dimensiones protegidas de la protesta social?</p>
+            <p>¿Qué tipos de protesta social pacífica existen?</p>
+            <p>¿Cuáles son las diferencias entre actos violentos y actos disruptivos en una protesta?</p>
+            <p>¿Cuáles son ejemplos de uso ilegítimo de la fuerza en protestas?</p>
+            <p>¿Qué tipos de armas menos letales pueden usar las fuerzas del orden en protestas?</p>
+        </div>
+    </div>
     <script>
+        // Cambio realizado: URL del backend ajustada a la nueva dirección
+        const API_URL = "https://agencia-o2w9.onrender.com/chat"; // Nueva URL ajustada
+
         document.getElementById("send-button").addEventListener("click", async function() {
-            let userInput = document.getElementById("user-input").value;
+            const userInput = document.getElementById("user-input").value;
             if (!userInput) return;
 
-            let chatBox = document.getElementById("chat-box");
-            chatBox.innerHTML += `<p><strong>Tú:</strong> ${userInput}</p>`;
-            
-            let response = await fetch("https://agencia-o2w9.onrender.com/chat", {
+            const response = await fetch(API_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ message: userInput })
             });
-            
-            let result = await response.json();
-            chatBox.innerHTML += `<p><strong>Asistente:</strong> ${result.reply}</p>`;
-            document.getElementById("user-input").value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const data = await response.json();
+            document.getElementById("chat-box").innerHTML += `<p><strong>Asistente:</strong> ${data.reply}</p>`;
+        });
+
+        document.getElementById("openModal").addEventListener("click", function() {
+            document.getElementById("myModal").style.display = "block";
+        });
+
+        document.querySelector(".close").addEventListener("click", function() {
+            document.getElementById("myModal").style.display = "none";
         });
     </script>
 </body>
